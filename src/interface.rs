@@ -1,13 +1,7 @@
-use std::fmt;
-use crate::attr::*;
-use crate::nl80211traits::ParseNlAttr;
-use crate::parse_attr::parse_u32;
-use crate::parse_attr::parse_u64;
-use crate::socket::Socket;
-use crate::station::Station;
-use neli::nlattr::AttrHandle;
+use crate::attr::{Attrs, Nl80211Attr};
 
-use crate::parse_attr::{parse_hex, parse_string};
+use neli::attr::Attribute;
+use neli::err::DeError;
 
 /// A struct representing a wifi interface
 #[derive(Clone, Debug, PartialEq)]
@@ -20,16 +14,16 @@ pub struct Interface {
     pub mac: Option<Vec<u8>>,
     /// Interface name (u8, String)
     pub name: Option<Vec<u8>>,
-    /// Interface frequency of the selected channel (u32, MHz)
-    pub frequency: Option<Vec<u8>>,
+    /// Interface frequency of the selected channel (MHz)
+    pub frequency: Option<u32>,
     /// Interface chanel
-    pub channel: Option<Vec<u8>>,
+    pub channel: Option<u32>,
     /// Interface transmit power level in signed mBm units.
-    pub power: Option<Vec<u8>>,
+    pub power: Option<u32>,
     /// index of wiphy to operate on, cf. /sys/class/ieee80211/<phyname>/index
-    pub phy: Option<Vec<u8>>,
-    /// Wireless device identifier, used for pseudo-devices that don't have a netdev (u64)
-    pub device: Option<Vec<u8>>,
+    pub phy: Option<u32>,
+    /// Wireless device identifier, used for pseudo-devices that don't have a netdev
+    pub device: Option<u64>,
 }
 
 impl Interface {
@@ -46,86 +40,42 @@ impl Interface {
             device: None,
         }
     }
-
-    /// Get station info for this interface
-    pub fn get_station_info(&self) -> Result<Station, neli::err::NlError> {
-        if let Some(index) = &self.index {
-            Socket::connect()?.get_station_info(index)
-        } else {
-            Err(neli::err::NlError::new("Invalid interface index {:?}"))
-        }
-    }
 }
 
-impl ParseNlAttr for Interface {
-    /// Parse netlink messages returned by the nl80211 command CmdGetInterface
-    fn parse(&mut self, handle: AttrHandle<Nl80211Attr>) -> Interface {
-        for attr in handle.iter() {
-            match attr.nla_type {
+impl TryFrom<Attrs<'_, Nl80211Attr>> for Interface {
+    type Error = DeError;
+
+    fn try_from(attrs: Attrs<'_, Nl80211Attr>) -> Result<Self, Self::Error> {
+        let mut res = Self::default();
+        for attr in attrs.iter() {
+            match attr.nla_type.nla_type {
                 Nl80211Attr::AttrIfindex => {
-                    self.index = Some(attr.payload.clone());
+                    res.index = Some(attr.get_payload_as_with_len()?);
                 }
                 Nl80211Attr::AttrSsid => {
-                    self.ssid = Some(attr.payload.clone());
+                    res.ssid = Some(attr.get_payload_as_with_len()?);
                 }
                 Nl80211Attr::AttrMac => {
-                    self.mac = Some(attr.payload.clone());
+                    res.mac = Some(attr.get_payload_as_with_len()?);
                 }
                 Nl80211Attr::AttrIfname => {
-                    self.name = Some(attr.payload.clone());
+                    res.name = Some(attr.get_payload_as_with_len()?);
                 }
-                Nl80211Attr::AttrWiphyFreq => self.frequency = Some(attr.payload.clone()),
-                Nl80211Attr::AttrChannelWidth => self.channel = Some(attr.payload.clone()),
-                Nl80211Attr::AttrWiphyTxPowerLevel => self.power = Some(attr.payload.clone()),
-                Nl80211Attr::AttrWiphy => self.phy = Some(attr.payload.clone()),
-                Nl80211Attr::AttrWdev => self.device = Some(attr.payload.clone()),
+                Nl80211Attr::AttrWiphyFreq => {
+                    res.frequency = Some(attr.get_payload_as()?);
+                }
+                Nl80211Attr::AttrChannelWidth => {
+                    res.channel = Some(attr.get_payload_as()?);
+                }
+                Nl80211Attr::AttrWiphyTxPowerLevel => {
+                    res.power = Some(attr.get_payload_as()?);
+                }
+                Nl80211Attr::AttrWiphy => res.phy = Some(attr.get_payload_as()?),
+                Nl80211Attr::AttrWdev => res.device = Some(attr.get_payload_as()?),
                 _ => (),
             }
         }
-        self.to_owned()
-    }
-}
-
-impl fmt::Display for Interface {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut result = Vec::new();
-
-        if let Some(ssid) = &self.ssid {
-            result.push(format!("essid : {}", parse_string(&ssid)))
-        };
-
-        if let Some(mac) = &self.mac {
-            result.push(format!("mac : {}", parse_hex(&mac)))
-        };
-
-        if let Some(name) = &self.name {
-            result.push(format!("interface : {}", parse_string(&name)))
-        };
-
-        if let Some(frequency) = &self.frequency {
-            result.push(format!(
-                "frequency : {} Ghz",
-                parse_u32(frequency) as f64 / 1000.00
-            ))
-        };
-
-        if let Some(chanel) = &self.channel {
-            result.push(format!("channel : {}", parse_u32(chanel)))
-        };
-
-        if let Some(power) = &self.power {
-            result.push(format!("power : {} dBm", parse_u32(power) / 100))
-        };
-
-        if let Some(phy) = &self.phy {
-            result.push(format!("phy : {}", parse_u32(phy)))
-        };
-
-        if let Some(device) = &self.device {
-            result.push(format!("device : {}", parse_u64(device)))
-        };
-
-        write!(f, "{}", result.join("\n"))
+        Ok(res)
     }
 }
 
@@ -133,124 +83,50 @@ impl fmt::Display for Interface {
 mod test_interface {
     use super::*;
     use crate::attr::Nl80211Attr::*;
-    use neli::nlattr::Nlattr;
+    use neli::attr::AttrHandle;
+    use neli::genl::{AttrType, Nlattr};
+    use neli::types::Buffer;
 
-    #[test]
-    fn test_pretty_format() {
-        let interface = Interface {
-            index: Some(vec![3, 0, 0, 0]),
-            ssid: Some(vec![101, 100, 117, 114, 111, 97, 109]),
-            mac: Some(vec![255, 255, 255, 255, 255, 255]),
-            name: Some(vec![119, 108, 112, 53, 115, 48]),
-            frequency: Some(vec![108, 9, 0, 0]),
-            channel: Some(vec![1, 0, 0, 0]),
-            power: Some(vec![164, 6, 0, 0]),
-            phy: Some(vec![0, 0, 0, 0]),
-            device: Some(vec![1, 0, 0, 0, 0, 0, 0, 0]),
-        };
-
-        let expected_output = r#"essid : eduroam
-        mac : FF:FF:FF:FF:FF:FF
-        interface : wlp5s0
-        frequency : 2.412 Ghz
-        channel : 1
-        power : 17 dBm
-        phy : 0
-        device : 1"#;
-
-        assert_eq!(
-            format!("{}", interface),
-            expected_output.replace("\n        ", "\n")
-        )
+    fn new_attr(t: Nl80211Attr, d: Vec<u8>) -> Nlattr<Nl80211Attr, Buffer> {
+        Nlattr {
+            nla_len: (4 + d.len()) as _,
+            nla_type: AttrType {
+                nla_nested: false,
+                nla_network_order: true,
+                nla_type: t,
+            },
+            nla_payload: d.into(),
+        }
     }
 
     #[test]
     fn test_parser() {
         let handler = vec![
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrIfindex,
-                payload: vec![3, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 11,
-                nla_type: AttrIfname,
-                payload: vec![119, 108, 112, 53, 115, 48],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrWiphy,
-                payload: vec![0, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrIftype,
-                payload: vec![2, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 12,
-                nla_type: AttrWdev,
-                payload: vec![1, 0, 0, 0, 0, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 10,
-                nla_type: AttrMac,
-                payload: vec![255, 255, 255, 255, 255, 255],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrGeneration,
-                payload: vec![5, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 5,
-                nla_type: Attr4addr,
-                payload: vec![0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrWiphyFreq,
-                payload: vec![108, 9, 0, 0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrWiphyChannelType,
-                payload: vec![1, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrChannelWidth,
-                payload: vec![1, 0, 0, 0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrCenterFreq1,
-                payload: vec![108, 9, 0, 0],
-            },
-            Nlattr {
-                nla_len: 8,
-                nla_type: AttrWiphyTxPowerLevel,
-                payload: vec![164, 6, 0, 0],
-            },
-            Nlattr {
-                nla_len: 12,
-                nla_type: AttrSsid,
-                payload: vec![101, 100, 117, 114, 111, 97, 109],
-            },
+            new_attr(AttrIfindex, vec![3, 0, 0, 0]),
+            new_attr(AttrIfname, vec![119, 108, 112, 53, 115, 48]),
+            new_attr(AttrWiphy, vec![0, 0, 0, 0]),
+            new_attr(AttrIftype, vec![2, 0, 0, 0]),
+            new_attr(AttrWdev, vec![1, 0, 0, 0, 0, 0, 0, 0]),
+            new_attr(AttrMac, vec![255, 255, 255, 255, 255, 255]),
+            new_attr(AttrWiphyFreq, vec![108, 9, 0, 0]),
+            new_attr(AttrChannelWidth, vec![1, 0, 0, 0]),
+            new_attr(AttrWiphyTxPowerLevel, vec![164, 6, 0, 0]),
+            new_attr(AttrSsid, vec![101, 100, 117, 114, 111, 97, 109]),
         ];
 
-        let interface = Interface::default().parse(neli::nlattr::AttrHandle::Owned(handler));
-
+        let interface: Interface = AttrHandle::new(handler.into_iter().collect())
+            .try_into()
+            .unwrap();
         let expected_interface = Interface {
             index: Some(vec![3, 0, 0, 0]),
             ssid: Some(vec![101, 100, 117, 114, 111, 97, 109]),
             mac: Some(vec![255, 255, 255, 255, 255, 255]),
             name: Some(vec![119, 108, 112, 53, 115, 48]),
-            frequency: Some(vec![108, 9, 0, 0]),
-            channel: Some(vec![1, 0, 0, 0]),
-            power: Some(vec![164, 6, 0, 0]),
-            phy: Some(vec![0, 0, 0, 0]),
-            device: Some(vec![1, 0, 0, 0, 0, 0, 0, 0]),
+            frequency: Some(u32::from_le_bytes([108, 9, 0, 0])),
+            channel: Some(u32::from_le_bytes([1, 0, 0, 0])),
+            power: Some(u32::from_le_bytes([164, 6, 0, 0])),
+            phy: Some(u32::from_le_bytes([0, 0, 0, 0])),
+            device: Some(u64::from_le_bytes([1, 0, 0, 0, 0, 0, 0, 0])),
         };
 
         assert_eq!(interface, expected_interface)
