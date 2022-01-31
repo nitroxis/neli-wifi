@@ -1,12 +1,12 @@
 [package]
-name = "nl80211"
-version = "0.0.2"
-authors = ["eonm <eon.mathis@gmail.com>"]
+name = "neli-wifi"
+version = "0.1.0"
+authors = ["eonm <eon.mathis@gmail.com>", "Max Verevkin <maxxverrr@gmail.com>"]
 edition = "2021"
+description = "Communicate with nl80211"
+repository = "https://github.com/MaxVerevkin/neli-wifi"
 license = "MIT"
-description = "Send commands to nl80211 and receive messages"
-homepage = "https://github.com/Eonm/nl80211"
-repository = "https://github.com/Eonm/nl80211"
+keywords = ["wifi", "neli", "nl80211"]
 
 [dependencies]
 neli = "0.6.0"
