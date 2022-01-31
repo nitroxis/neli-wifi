@@ -1,6 +1,6 @@
 //! Pretty print host interfaces.
 
-use nl80211::Socket;
+use neli_wifi::Socket;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
