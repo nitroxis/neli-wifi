@@ -16,8 +16,8 @@ use neli::types::GenlBuffer;
 
 /// A generic netlink socket to send commands and receive messages
 pub struct Socket {
-    pub sock: NlSocketHandle,
-    pub family_id: u16,
+    sock: NlSocketHandle,
+    family_id: u16,
 }
 
 impl Socket {
