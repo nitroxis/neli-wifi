@@ -23,9 +23,8 @@ pub struct Socket {
 impl Socket {
     /// Create a new nl80211 socket with netlink
     pub fn connect() -> Result<Self, NlError<GenlId, Genlmsghdr<CtrlCmd, CtrlAttr>>> {
-        let family_id =
-            NlSocketHandle::new(NlFamily::Generic)?.resolve_genl_family(NL_80211_GENL_NAME)?;
-        let sock = NlSocketHandle::connect(NlFamily::Generic, None, &[])?;
+        let mut sock = NlSocketHandle::connect(NlFamily::Generic, None, &[])?;
+        let family_id = sock.resolve_genl_family(NL_80211_GENL_NAME)?;
         Ok(Self { sock, family_id })
     }
 
