@@ -6,8 +6,7 @@ use crate::station::Station;
 use crate::{NL_80211_GENL_NAME, NL_80211_GENL_VERSION};
 
 use neli::consts::genl::{CtrlAttr, CtrlCmd};
-use neli::consts::nl::GenlId;
-use neli::consts::{nl::NlmF, nl::NlmFFlags, nl::Nlmsg, socket::NlFamily};
+use neli::consts::{nl::GenlId, nl::NlmF, nl::NlmFFlags, nl::Nlmsg, socket::NlFamily};
 use neli::err::NlError;
 use neli::genl::{Genlmsghdr, Nlattr};
 use neli::nl::{NlPayload, Nlmsghdr};
@@ -44,7 +43,7 @@ impl Socket {
     /// #   Ok(())
     /// # }
     ///```
-    pub fn get_interfaces_info(&mut self) -> Result<Vec<Interface>, neli::err::NlError> {
+    pub fn get_interfaces_info(&mut self) -> Result<Vec<Interface>, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetInterface,
             NL_80211_GENL_VERSION,
@@ -105,10 +104,7 @@ impl Socket {
     /// #   Ok(())
     /// # }
     ///```
-    pub fn get_station_info(
-        &mut self,
-        interface_attr_if_index: &[u8],
-    ) -> Result<Station, neli::err::NlError> {
+    pub fn get_station_info(&mut self, interface_attr_if_index: &[u8]) -> Result<Station, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetStation,
             NL_80211_GENL_VERSION,
@@ -158,10 +154,7 @@ impl Socket {
         Ok(Station::default())
     }
 
-    pub fn get_bss_info(
-        &mut self,
-        interface_attr_if_index: &[u8],
-    ) -> Result<Bss, neli::err::NlError> {
+    pub fn get_bss_info(&mut self, interface_attr_if_index: &[u8]) -> Result<Bss, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetScan,
             NL_80211_GENL_VERSION,
@@ -208,5 +201,12 @@ impl Socket {
             }
         }
         Ok(Bss::default())
+    }
+}
+
+impl From<Socket> for NlSocketHandle {
+    /// Returns the underlying generic netlink socket
+    fn from(sock: Socket) -> Self {
+        sock.sock
     }
 }
