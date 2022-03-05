@@ -1,12 +1,12 @@
 [package]
 name = "neli-wifi"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["eonm <eon.mathis@gmail.com>", "Max Verevkin <maxxverrr@gmail.com>"]
 edition = "2021"
 description = "Communicate with nl80211"
 repository = "https://github.com/MaxVerevkin/neli-wifi"
 license = "MIT"
-keywords = ["wifi", "neli", "nl80211"]
+keywords = ["wifi", "neli", "netlink", "nl80211"]
 
 [dependencies]
 neli = "0.6.0"
