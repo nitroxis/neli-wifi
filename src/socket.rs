@@ -15,8 +15,8 @@ use neli::types::GenlBuffer;
 
 /// A generic netlink socket to send commands and receive messages
 pub struct Socket {
-    sock: NlSocketHandle,
-    family_id: u16,
+    pub(crate) sock: NlSocketHandle,
+    pub(crate) family_id: u16,
 }
 
 impl Socket {
@@ -138,6 +138,7 @@ impl Socket {
         let iter = self
             .sock
             .iter::<Nlmsg, Genlmsghdr<Nl80211Cmd, Nl80211Attr>>(false);
+        let mut retval = None;
         for response in iter {
             let response = response.unwrap();
             match response.nl_type {
@@ -145,13 +146,19 @@ impl Socket {
                 Nlmsg::Error => panic!("Error"),
                 Nlmsg::Done => break,
                 _ => {
-                    let handle = response.nl_payload.get_payload().unwrap().get_attr_handle();
-                    return Ok(handle.try_into()?);
+                    retval = Some(
+                        response
+                            .nl_payload
+                            .get_payload()
+                            .unwrap()
+                            .get_attr_handle()
+                            .try_into()?,
+                    );
                 }
             };
         }
 
-        Ok(Station::default())
+        Ok(retval.unwrap_or_default())
     }
 
     pub fn get_bss_info(&mut self, interface_attr_if_index: &[u8]) -> Result<Bss, NlError> {
@@ -188,6 +195,7 @@ impl Socket {
         let iter = self
             .sock
             .iter::<Nlmsg, Genlmsghdr<Nl80211Cmd, Nl80211Attr>>(false);
+        let mut retval = None;
         for response in iter {
             let response = response.unwrap();
             match response.nl_type {
@@ -195,12 +203,19 @@ impl Socket {
                 Nlmsg::Error => panic!("Error"),
                 Nlmsg::Done => break,
                 _ => {
-                    let handle = response.nl_payload.get_payload().unwrap().get_attr_handle();
-                    return Ok(handle.try_into()?);
+                    retval = Some(
+                        response
+                            .nl_payload
+                            .get_payload()
+                            .unwrap()
+                            .get_attr_handle()
+                            .try_into()?,
+                    );
                 }
             }
         }
-        Ok(Bss::default())
+
+        Ok(retval.unwrap_or_default())
     }
 }
 
