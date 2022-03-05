@@ -8,6 +8,14 @@ repository = "https://github.com/MaxVerevkin/neli-wifi"
 license = "MIT"
 keywords = ["wifi", "neli", "netlink", "nl80211"]
 
+[features]
+default = []
+async = ["neli/async"]
+
 [dependencies]
 neli = "0.6.0"
 neli-proc-macros = "0.1.0"
+
+[dev-dependencies.tokio]
+version = "1.0"
+features = ["macros"]

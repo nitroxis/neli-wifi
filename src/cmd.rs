@@ -3,7 +3,7 @@ use neli_proc_macros::neli_enum;
 
 /// nl80211Commands
 ///
-/// https://github.com/mdlayher/wifi/blob/b1436901ddee2ea3ee8782a440a084e457615766/internal/nl80211/const.go
+/// <https://github.com/mdlayher/wifi/blob/b1436901ddee2ea3ee8782a440a084e457615766/internal/nl80211/const.go>
 ///
 /// Enumeration from nl80211/nl80211.h:880
 #[neli_enum(serialized_type = "u8")]

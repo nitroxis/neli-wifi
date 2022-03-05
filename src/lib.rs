@@ -17,4 +17,9 @@ mod interface;
 pub use interface::*;
 
 mod socket;
-pub use socket::Socket;
+pub use socket::*;
+
+#[cfg(feature = "async")]
+mod async_socket;
+#[cfg(feature = "async")]
+pub use async_socket::*;

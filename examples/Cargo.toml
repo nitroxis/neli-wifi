@@ -1,0 +1,20 @@
+[package]
+name = "examples"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "show_interfaces"
+path = "show_interfaces.rs"
+
+[[bin]]
+name = "show_interfaces_async"
+path = "show_interfaces_async.rs"
+
+[dependencies.neli-wifi]
+path = "../"
+features = ["async"]
+
+[dependencies.tokio]
+version = "1.0"
+features = ["macros"]
