@@ -19,3 +19,6 @@ neli-proc-macros = "0.1.0"
 [dev-dependencies.tokio]
 version = "1.0"
 features = ["macros"]
+
+[package.metadata.docs.rs]
+all-features = true
