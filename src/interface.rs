@@ -4,7 +4,7 @@ use neli::attr::Attribute;
 use neli::err::DeError;
 
 /// A struct representing a wifi interface
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Interface {
     /// A netlink interface index. This index is used to fetch extra information with nl80211
     pub index: Option<Vec<u8>>,
@@ -24,22 +24,6 @@ pub struct Interface {
     pub phy: Option<u32>,
     /// Wireless device identifier, used for pseudo-devices that don't have a netdev
     pub device: Option<u64>,
-}
-
-impl Interface {
-    pub fn default() -> Interface {
-        Interface {
-            index: None,
-            ssid: None,
-            mac: None,
-            name: None,
-            frequency: None,
-            channel: None,
-            power: None,
-            phy: None,
-            device: None,
-        }
-    }
 }
 
 impl TryFrom<Attrs<'_, Nl80211Attr>> for Interface {
