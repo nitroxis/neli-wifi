@@ -7,7 +7,7 @@ use neli::err::DeError;
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Interface {
     /// A netlink interface index. This index is used to fetch extra information with nl80211
-    pub index: Option<Vec<u8>>,
+    pub index: Option<i32>,
     /// Interface essid
     pub ssid: Option<Vec<u8>>,
     /// Interface MAC address
@@ -34,7 +34,7 @@ impl TryFrom<Attrs<'_, Nl80211Attr>> for Interface {
         for attr in attrs.iter() {
             match attr.nla_type.nla_type {
                 Nl80211Attr::AttrIfindex => {
-                    res.index = Some(attr.get_payload_as_with_len()?);
+                    res.index = Some(attr.get_payload_as()?);
                 }
                 Nl80211Attr::AttrSsid => {
                     res.ssid = Some(attr.get_payload_as_with_len()?);
@@ -102,7 +102,7 @@ mod test_interface {
             .try_into()
             .unwrap();
         let expected_interface = Interface {
-            index: Some(vec![3, 0, 0, 0]),
+            index: Some(3),
             ssid: Some(vec![101, 100, 117, 114, 111, 97, 109]),
             mac: Some(vec![255, 255, 255, 255, 255, 255]),
             name: Some(vec![119, 108, 112, 53, 115, 48]),

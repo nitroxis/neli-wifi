@@ -94,30 +94,24 @@ impl Socket {
     ///   // First of all we need to get wifi interface information to get more data
     ///   let wifi_interfaces = Socket::connect()?.get_interfaces_info();
     ///   for wifi_interface in wifi_interfaces? {
-    ///     if let Some(netlink_index) = wifi_interface.index {
+    ///     if let Some(index) = wifi_interface.index {
     ///
     ///       // Then for each wifi interface we can fetch station information
-    ///       let station_info = Socket::connect()?.get_station_info(&netlink_index.clone())?;
+    ///       let station_info = Socket::connect()?.get_station_info(index)?;
     ///           println!("{:#?}", station_info);
     ///       }
     ///     }
     /// #   Ok(())
     /// # }
     ///```
-    pub fn get_station_info(&mut self, interface_attr_if_index: &[u8]) -> Result<Station, NlError> {
+    pub fn get_station_info(&mut self, interface_index: i32) -> Result<Station, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetStation,
             NL_80211_GENL_VERSION,
             {
                 let mut attrs = GenlBuffer::new();
                 attrs.push(
-                    Nlattr::new(
-                        false,
-                        false,
-                        Nl80211Attr::AttrIfindex,
-                        NlPayload::<(), Vec<u8>>::Payload(interface_attr_if_index.to_owned()),
-                    )
-                    .unwrap(),
+                    Nlattr::new(false, false, Nl80211Attr::AttrIfindex, interface_index).unwrap(),
                 );
                 attrs
             },
@@ -161,20 +155,14 @@ impl Socket {
         Ok(retval.unwrap_or_default())
     }
 
-    pub fn get_bss_info(&mut self, interface_attr_if_index: &[u8]) -> Result<Bss, NlError> {
+    pub fn get_bss_info(&mut self, interface_index: i32) -> Result<Bss, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetScan,
             NL_80211_GENL_VERSION,
             {
                 let mut attrs = GenlBuffer::new();
                 attrs.push(
-                    Nlattr::new(
-                        false,
-                        false,
-                        Nl80211Attr::AttrIfindex,
-                        NlPayload::<(), Vec<u8>>::Payload(interface_attr_if_index.to_owned()),
-                    )
-                    .unwrap(),
+                    Nlattr::new(false, false, Nl80211Attr::AttrIfindex, interface_index).unwrap(),
                 );
                 attrs
             },
