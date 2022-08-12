@@ -260,9 +260,6 @@ pub enum Nl80211Attr {
     AttrNanDual = 239,
     AttrNanFunc = 240,
     AttrNanMatch = 241,
-    AttrAfterLast = 242,
-    NumAttr = 242, //__AttrAfterLast,
-    AttrMax = 241, //__AttrAfterLast - 1
 }
 
 impl NlAttrType for Nl80211Attr {}
@@ -285,8 +282,6 @@ pub enum Nl80211Iftype {
     IftypeP2pDevice = 10,
     IftypeOcb = 11,
     IftypeNan = 12,
-    NumIftypes = 13,
-    IftypeMax = 12,
 }
 
 impl NlAttrType for Nl80211Iftype {}
@@ -302,8 +297,6 @@ pub enum Nl80211StaFlags {
     StaFlagAuthenticated = 5,
     StaFlagTdlsPeer = 6,
     StaFlagAssociated = 7,
-    StaFlagAfterLast = 8,
-    StaFlagMax = 7,
 }
 
 impl NlAttrType for Nl80211StaFlags {}
@@ -315,7 +308,6 @@ impl NlAttrType for Nl80211StaFlags {}
 pub enum Nl80211StaP2pPsStatus {
     P2pPsUnsupported = 0,
     P2pPsSupported = 1,
-    NumP2pPsStatus = 2,
 }
 
 impl NlAttrType for Nl80211StaP2pPsStatus {}
@@ -338,8 +330,6 @@ pub enum Nl80211RateInfo {
     RateInfo160MhzWidth = 10,
     RateInfo10MhzWidth = 11,
     RateInfo5MhzWidth = 12,
-    RateInfoAfterLast = 13,
-    RateInfoMax = 12,
 }
 
 impl NlAttrType for Nl80211RateInfo {}
@@ -355,8 +345,6 @@ pub enum Nl80211StaBssParam {
     StaBssParamShortSlotTime = 3,
     StaBssParamDtimPeriod = 4,
     StaBssParamBeaconInterval = 5,
-    StaBssParamAfterLast = 6,
-    StaBssParamMax = 5,
 }
 
 impl NlAttrType for Nl80211StaBssParam {}
@@ -400,8 +388,6 @@ pub enum Nl80211StaInfo {
     StaInfoTidStats = 31,
     StaInfoRxDuration = 32,
     StaInfoPad = 33,
-    StaInfoAfterLast = 34,
-    StaInfoMax = 33,
 }
 
 impl NlAttrType for Nl80211StaInfo {}
@@ -417,8 +403,6 @@ pub enum Nl80211TidStats {
     TidStatsTxMsduRetries = 3,
     TidStatsTxMsduFailed = 4,
     TidStatsPad = 5,
-    NumTidStats = 6,
-    TidStatsMax = 5,
 }
 
 impl NlAttrType for Nl80211TidStats {}
@@ -450,8 +434,6 @@ pub enum Nl80211MpathInfo {
     MpathInfoFlags = 5,
     MpathInfoDiscoveryTimeout = 6,
     MpathInfoDiscoveryRetries = 7,
-    MpathInfoAfterLast = 8,
-    MpathInfoMax = 7,
 }
 
 impl NlAttrType for Nl80211MpathInfo {}
@@ -470,8 +452,6 @@ pub enum Nl80211BandAttr {
     BandAttrHtAmpduDensity = 6,
     BandAttrVhtMcsSet = 7,
     BandAttrVhtCapa = 8,
-    BandAttrAfterLast = 9,
-    BandAttrMax = 8,
 }
 
 impl NlAttrType for Nl80211BandAttr {}
@@ -499,8 +479,6 @@ pub enum Nl80211FrequencyAttr {
     FrequencyAttrIrConcurrent = 15,
     FrequencyAttrNo20mhz = 16,
     FrequencyAttrNo10mhz = 17,
-    FrequencyAttrAfterLast = 18,
-    FrequencyAttrMax = 17,
 }
 
 impl NlAttrType for Nl80211FrequencyAttr {}
@@ -513,8 +491,6 @@ pub enum Nl80211BitrateAttr {
     BitrateAttrInvalid = 0,
     BitrateAttrRate = 1,
     BitrateAttr2ghzShortpreamble = 2,
-    BitrateAttrAfterLast = 3,
-    BitrateAttrMax = 2,
 }
 
 impl NlAttrType for Nl80211BitrateAttr {}
@@ -558,8 +534,6 @@ pub enum Nl80211RegRuleAttr {
     AttrPowerRuleMaxAntGain = 5,
     AttrPowerRuleMaxEirp = 6,
     AttrDfsCacTime = 7,
-    RegRuleAttrAfterLast = 8,
-    RegRuleAttrMax = 7,
 }
 
 impl NlAttrType for Nl80211RegRuleAttr {}
@@ -572,8 +546,6 @@ pub enum Nl80211SchedScanMatchAttr {
     SchedScanMatchAttrInvalid = 0,
     SchedScanMatchAttrSsid = 1,
     SchedScanMatchAttrRssi = 2,
-    SchedScanMatchAttrAfterLast = 3,
-    SchedScanMatchAttrMax = 2,
 }
 
 impl NlAttrType for Nl80211SchedScanMatchAttr {}
@@ -642,8 +614,6 @@ pub enum Nl80211SurveyInfo {
     SurveyInfoTimeTx = 8,
     SurveyInfoTimeScan = 9,
     SurveyInfoPad = 10,
-    SurveyInfoAfterLast = 11,
-    SurveyInfoMax = 10,
 }
 
 impl NlAttrType for Nl80211SurveyInfo {}
@@ -660,8 +630,6 @@ pub enum Nl80211MntrFlags {
     MntrFlagOtherBss = 4,
     MntrFlagCookFrames = 5,
     MntrFlagActive = 6,
-    MntrFlagAfterLast = 7,
-    MntrFlagMax = 6,
 }
 
 impl NlAttrType for Nl80211MntrFlags {}
@@ -675,8 +643,6 @@ pub enum Nl80211MeshPowerMode {
     MeshPowerActive = 1,
     MeshPowerLightSleep = 2,
     MeshPowerDeepSleep = 3,
-    MeshPowerAfterLast = 4,
-    MeshPowerMax = 3,
 }
 
 impl NlAttrType for Nl80211MeshPowerMode {}
@@ -715,8 +681,6 @@ pub enum Nl80211MeshconfParams {
     MeshconfPowerMode = 26,
     MeshconfAwakeWindow = 27,
     MeshconfPlinkTimeout = 28,
-    MeshconfAttrAfterLast = 29,
-    MeshconfAttrMax = 28,
 }
 
 impl NlAttrType for Nl80211MeshconfParams {}
@@ -735,8 +699,6 @@ pub enum Nl80211MeshSetupParams {
     MeshSetupEnableVendorSync = 6,
     MeshSetupUserspaceMpm = 7,
     MeshSetupAuthProtocol = 8,
-    MeshSetupAttrAfterLast = 9,
-    MeshSetupAttrMax = 8,
 }
 
 impl NlAttrType for Nl80211MeshSetupParams {}
@@ -752,8 +714,6 @@ pub enum Nl80211TxqAttr {
     TxqAttrCwmin = 3,
     TxqAttrCwmax = 4,
     TxqAttrAifs = 5,
-    TxqAttrAfterLast = 6,
-    TxqAttrMax = 5,
 }
 
 impl NlAttrType for Nl80211TxqAttr {}
@@ -767,7 +727,6 @@ pub enum Nl80211Ac {
     AcVi = 1,
     AcBe = 2,
     AcBk = 3,
-    NumAcs = 4,
 }
 
 impl NlAttrType for Nl80211Ac {}
@@ -838,8 +797,6 @@ pub enum Nl80211Bss {
     BssPad = 16,
     BssParentTsf = 17,
     BssParentBssid = 18,
-    BssAfterLast = 19,
-    BssMax = 18,
 }
 
 impl NlAttrType for Nl80211Bss {}
@@ -881,7 +838,6 @@ pub enum Nl80211KeyType {
     KeytypeGroup = 0,
     KeytypePairwise = 1,
     KeytypePeerkey = 2,
-    NumKeytypes = 3,
 }
 
 impl NlAttrType for Nl80211KeyType {}
@@ -916,7 +872,6 @@ pub enum Nl80211KeyDefaultTypes {
     KeyDefaultTypeInvalid = 0,
     KeyDefaultTypeUnicast = 1,
     KeyDefaultTypeMulticast = 2,
-    NumKeyDefaultTypes = 3,
 }
 
 impl NlAttrType for Nl80211KeyDefaultTypes {}
@@ -935,8 +890,6 @@ pub enum Nl80211KeyAttributes {
     KeyDefaultMgmt = 6,
     KeyType = 7,
     KeyDefaultTypes = 8,
-    KeyAfterLast = 9,
-    KeyMax = 8,
 }
 
 impl NlAttrType for Nl80211KeyAttributes {}
@@ -951,8 +904,6 @@ pub enum Nl80211TxRateAttributes {
     TxrateHt = 2,
     TxrateVht = 3,
     TxrateGi = 4,
-    TxrateAfterLast = 5,
-    TxrateMax = 4,
 }
 
 impl NlAttrType for Nl80211TxRateAttributes {}
@@ -977,7 +928,6 @@ pub enum Nl80211Bandc {
     Band2ghz = 0,
     Band5ghz = 1,
     Band60ghz = 2,
-    NumBands = 3,
 }
 
 impl NlAttrType for Nl80211Bandc {}
@@ -1007,8 +957,6 @@ pub enum Nl80211AttrCqm {
     AttrCqmTxePkts = 6,
     AttrCqmTxeIntvl = 7,
     AttrCqmBeaconLossEvent = 8,
-    AttrCqmAfterLast = 9,
-    AttrCqmMax = 8,
 }
 
 impl NlAttrType for Nl80211AttrCqm {}
@@ -1046,8 +994,6 @@ pub enum Nl80211PacketPatternAttr {
     PktpatMask = 1,
     PktpatPattern = 2,
     PktpatOffset = 3,
-    NumPktpat = 4,
-    MaxPktpat = 3,
 }
 
 impl NlAttrType for Nl80211PacketPatternAttr {}
@@ -1077,8 +1023,6 @@ pub enum Nl80211WowlanTriggers {
     WowlanTrigWakeupTcpNomoretokens = 17,
     WowlanTrigNetDetect = 18,
     WowlanTrigNetDetectResults = 19,
-    NumWowlanTrig = 20,
-    MaxWowlanTrig = 19,
 }
 
 impl NlAttrType for Nl80211WowlanTriggers {}
@@ -1100,8 +1044,6 @@ pub enum Nl80211WowlanTcpAttrs {
     WowlanTcpDataInterval = 9,
     WowlanTcpWakePayload = 10,
     WowlanTcpWakeMask = 11,
-    NumWowlanTcp = 12,
-    MaxWowlanTcp = 11,
 }
 
 impl NlAttrType for Nl80211WowlanTcpAttrs {}
@@ -1115,8 +1057,6 @@ pub enum Nl80211AttrCoalesceRule {
     AttrCoalesceRuleDelay = 1,
     AttrCoalesceRuleCondition = 2,
     AttrCoalesceRulePktPattern = 3,
-    NumAttrCoalesceRule = 4,
-    AttrCoalesceRuleMax = 3,
 }
 
 impl NlAttrType for Nl80211AttrCoalesceRule {}
@@ -1140,8 +1080,6 @@ pub enum Nl80211IfaceLimitAttrs {
     IfaceLimitUnspec = 0,
     IfaceLimitMax = 1,
     IfaceLimitTypes = 2,
-    NumIfaceLimit = 3,
-    MaxIfaceLimit = 2,
 }
 
 impl NlAttrType for Nl80211IfaceLimitAttrs {}
@@ -1158,8 +1096,6 @@ pub enum Nl80211IfCombinationAttrs {
     IfaceCombNumChannels = 4,
     IfaceCombRadarDetectWidths = 5,
     IfaceCombRadarDetectRegions = 6,
-    NumIfaceComb = 7,
-    MaxIfaceComb = 6,
 }
 
 impl NlAttrType for Nl80211IfCombinationAttrs {}
@@ -1176,8 +1112,6 @@ pub enum Nl80211PlinkState {
     PlinkEstab = 4,
     PlinkHolding = 5,
     PlinkBlocked = 6,
-    NumPlinkStates = 7,
-    MaxPlinkStates = 6,
 }
 
 impl NlAttrType for Nl80211PlinkState {}
@@ -1190,7 +1124,6 @@ pub enum PlinkActions {
     PlinkActionNoAction = 0,
     PlinkActionOpen = 1,
     PlinkActionBlock = 2,
-    NumPlinkActions = 3,
 }
 
 impl NlAttrType for PlinkActions {}
@@ -1204,8 +1137,6 @@ pub enum Nl80211RekeyData {
     RekeyDataKek = 1,
     RekeyDataKck = 2,
     RekeyDataReplayCtr = 3,
-    NumRekeyData = 4,
-    MaxRekeyData = 3,
 }
 
 impl NlAttrType for Nl80211RekeyData {}
@@ -1230,8 +1161,6 @@ pub enum Nl80211StaWmeAttr {
     StaWmeInvalid = 0,
     StaWmeUapsdQueues = 1,
     StaWmeMaxSp = 2,
-    StaWmeAfterLast = 3,
-    StaWmeMax = 2,
 }
 
 impl NlAttrType for Nl80211StaWmeAttr {}
@@ -1245,8 +1174,6 @@ pub enum Nl80211PmksaCandidateAttr {
     PmksaCandidateIndex = 1,
     PmksaCandidateBssid = 2,
     PmksaCandidatePreauth = 3,
-    NumPmksaCandidate = 4,
-    MaxPmksaCandidate = 3,
 }
 
 impl NlAttrType for Nl80211PmksaCandidateAttr {}
@@ -1319,8 +1246,6 @@ pub enum Nl80211ExtFeatureIndex {
     ExtFeatureBeaconRateLegacy = 6,
     ExtFeatureBeaconRateHt = 7,
     ExtFeatureBeaconRateVht = 8,
-    NumExtFeatures = 9,
-    MaxExtFeatures = 8,
 }
 
 impl NlAttrType for Nl80211ExtFeatureIndex {}
@@ -1381,8 +1306,6 @@ pub enum Nl80211SmpsMode {
     SmpsOff = 0,
     SmpsStatic = 1,
     SmpsDynamic = 2,
-    SmpsAfterLast = 3,
-    SmpsMax = 2,
 }
 
 impl NlAttrType for Nl80211SmpsMode {}
@@ -1431,7 +1354,6 @@ pub enum Nl80211CritProtoId {
     CritProtoDhcp = 1,
     CritProtoEapol = 2,
     CritProtoApipa = 3,
-    NumCritProto = 4,
 }
 
 impl NlAttrType for Nl80211CritProtoId {}
@@ -1466,8 +1388,6 @@ pub enum Nl80211SchedScanPlan {
     SchedScanPlanInvalid = 0,
     SchedScanPlanInterval = 1,
     SchedScanPlanIterations = 2,
-    SchedScanPlanAfterLast = 3,
-    SchedScanPlanMax = 2,
 }
 
 impl NlAttrType for Nl80211SchedScanPlan {}
@@ -1481,8 +1401,6 @@ pub enum Nl80211BssSelectAttr {
     BssSelectAttrRssi = 1,
     BssSelectAttrBandPref = 2,
     BssSelectAttrRssiAdjust = 3,
-    BssSelectAttrAfterLast = 4,
-    BssSelectAttrMax = 3,
 }
 
 impl NlAttrType for Nl80211BssSelectAttr {}
@@ -1558,8 +1476,6 @@ pub enum Nl80211NanFuncAttributes {
     NanFuncTxMatchFilter = 14,
     NanFuncInstanceId = 15,
     NanFuncTermReason = 16,
-    NumNanFuncAttr = 17,
-    NanFuncAttrMax = 16,
 }
 
 impl NlAttrType for Nl80211NanFuncAttributes {}
@@ -1574,8 +1490,6 @@ pub enum Nl80211NanSrfAttributes {
     NanSrfBf = 2,
     NanSrfBfIdx = 3,
     NanSrfMacAddrs = 4,
-    NumNanSrfAttr = 5,
-    NanSrfAttrMax = 4,
 }
 
 impl NlAttrType for Nl80211NanSrfAttributes {}
@@ -1588,8 +1502,6 @@ pub enum Nl80211NanMatchAttributes {
     NanMatchInvalid = 0,
     NanMatchFuncLocal = 1,
     NanMatchFuncPeer = 2,
-    NumNanMatchAttr = 3,
-    NanMatchAttrMax = 2,
 }
 
 impl NlAttrType for Nl80211NanMatchAttributes {}
