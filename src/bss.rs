@@ -18,6 +18,8 @@ pub struct Bss {
     pub status: Option<u32>,
     /// Signal strength of probe response/beacon in mBm (100 * dBm)
     pub signal: Option<i32>,
+    /// binary attribute containing the raw information elements from the probe response/beacon.
+    pub information_elements: Option<Vec<u8>>,
 }
 
 impl TryFrom<Attrs<'_, Nl80211Attr>> for Bss {
@@ -46,6 +48,9 @@ impl TryFrom<Attrs<'_, Nl80211Attr>> for Bss {
                     }
                     Nl80211Bss::BssSignalMbm => {
                         res.signal = Some(attr.get_payload_as()?);
+                    }
+                    Nl80211Bss::BssInformationElements => {
+                        res.information_elements = Some(attr.get_payload_as_with_len()?);
                     }
                     _ => (),
                 }
