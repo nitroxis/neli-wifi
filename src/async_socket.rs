@@ -170,7 +170,7 @@ impl AsyncSocket {
         }
     }
 
-    pub async fn get_bss_info(&mut self, interface_index: i32) -> Result<Bss, NlError> {
+    pub async fn get_bss_info(&mut self, interface_index: i32) -> Result<Vec<Bss>, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetScan,
             NL_80211_GENL_VERSION,
@@ -196,7 +196,7 @@ impl AsyncSocket {
         self.sock.send(&nlhdr).await?;
 
         let mut buf = Vec::new();
-        let mut retval = None;
+        let mut retval = Vec::new();
 
         loop {
             let res = self
@@ -207,9 +207,9 @@ impl AsyncSocket {
                 match response.nl_type {
                     Nlmsg::Noop => (),
                     Nlmsg::Error => panic!("Error"),
-                    Nlmsg::Done => return Ok(retval.unwrap_or_default()),
+                    Nlmsg::Done => return Ok(retval),
                     _ => {
-                        retval = Some(
+                        retval.push(
                             response
                                 .nl_payload
                                 .get_payload()
