@@ -104,7 +104,7 @@ impl Socket {
     /// #   Ok(())
     /// # }
     ///```
-    pub fn get_station_info(&mut self, interface_index: i32) -> Result<Station, NlError> {
+    pub fn get_station_info(&mut self, interface_index: i32) -> Result<Vec<Station>, NlError> {
         let msghdr = Genlmsghdr::<Nl80211Cmd, Nl80211Attr>::new(
             Nl80211Cmd::CmdGetStation,
             NL_80211_GENL_VERSION,
@@ -132,7 +132,7 @@ impl Socket {
         let iter = self
             .sock
             .iter::<Nlmsg, Genlmsghdr<Nl80211Cmd, Nl80211Attr>>(false);
-        let mut retval = None;
+        let mut retval = Vec::new();
         for response in iter {
             let response = response.unwrap();
             match response.nl_type {
@@ -140,7 +140,7 @@ impl Socket {
                 Nlmsg::Error => panic!("Error"),
                 Nlmsg::Done => break,
                 _ => {
-                    retval = Some(
+                    retval.push(
                         response
                             .nl_payload
                             .get_payload()
@@ -152,7 +152,7 @@ impl Socket {
             };
         }
 
-        Ok(retval.unwrap_or_default())
+        Ok(retval)
     }
 
     pub fn get_bss_info(&mut self, interface_index: i32) -> Result<Vec<Bss>, NlError> {
