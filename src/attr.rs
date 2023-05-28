@@ -388,6 +388,16 @@ pub enum Nl80211StaInfo {
     StaInfoTidStats = 31,
     StaInfoRxDuration = 32,
     StaInfoPad = 33,
+    StaInfoAckSignal = 34,
+    StaInfoAckSignalAvg = 35,
+    StaInfoRxMpdus = 36,
+    StaInfoFcsErrorCount = 37,
+    StaInfoConnectedToGate = 38,
+    StaInfoTxDuration = 39,
+    StaInfoAirtimeWeight = 40,
+    StaInfoAirtimeLinkMetric = 41,
+    StaInfoAssocAtBoottime = 42,
+    StaInfoConnectedToAs = 42,
 }
 
 impl NlAttrType for Nl80211StaInfo {}
