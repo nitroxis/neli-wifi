@@ -6,28 +6,39 @@ use neli::err::DeError;
 /// A struct representing a remote station (Access Point)
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Station {
-    /// Signal strength average (dBm)
-    pub average_signal: Option<i8>,
-    /// Count of times beacon loss was detected
-    pub beacon_loss: Option<u32>,
     /// Station bssid (u8)
     pub bssid: Option<Vec<u8>>,
-    /// Time since the station is last connected in seconds
-    pub connected_time: Option<u32>,
-    /// Reception bitrate
-    pub rx_bitrate: Option<u32>,
+    pub inactive_time: Option<u32>,
+    pub rx_bytes: Option<u64>,
     /// Total received packets (MSDUs and MMPDUs) from this station
     pub rx_packets: Option<u32>,
-    /// Signal strength of last received PPDU (dBm)
-    pub signal: Option<i8>,
-    /// Transmission bitrate
-    pub tx_bitrate: Option<u32>,
-    /// Total failed packets (MPDUs) to this station
-    pub tx_failed: Option<u32>,
+    pub tx_bytes: Option<u64>,
     /// Total transmitted packets (MSDUs and MMPDUs) to this station
     pub tx_packets: Option<u32>,
     /// Total retries (MPDUs) to this station
     pub tx_retries: Option<u32>,
+    /// Total failed packets (MPDUs) to this station
+    pub tx_failed: Option<u32>,
+    pub beacon_rx: Option<u64>,
+    /// Count of times beacon loss was detected
+    pub beacon_loss: Option<u32>,
+    pub rx_drop_misc: Option<u64>,
+    /// Signal strength of last received PPDU (dBm)
+    pub signal: Option<i8>,
+    /// Signal strength average (dBm)
+    pub average_signal: Option<i8>,
+    pub beacon_signal_avg: Option<i8>,
+    pub t_offset: Option<u64>,
+    /// Transmission bitrate
+    pub tx_bitrate: Option<u32>,
+    /// Reception bitrate
+    pub rx_bitrate: Option<u32>,
+    pub rx_duration: Option<u64>,
+    pub tx_duration: Option<u64>,
+    pub ack_signal: Option<i8>,
+    pub ack_signal_avg: Option<i8>,
+    /// Time since the station is last connected in seconds
+    pub connected_time: Option<u32>,
 }
 
 impl TryFrom<Attrs<'_, Nl80211Attr>> for Station {
@@ -43,18 +54,23 @@ impl TryFrom<Attrs<'_, Nl80211Attr>> for Station {
             let attrs = info.get_attr_handle::<Nl80211StaInfo>().unwrap();
             for attr in attrs.iter() {
                 match attr.nla_type.nla_type {
-                    Nl80211StaInfo::StaInfoSignal => res.signal = Some(attr.get_payload_as()?),
-                    Nl80211StaInfo::StaInfoSignalAvg => {
-                        res.average_signal = Some(attr.get_payload_as()?)
+                    Nl80211StaInfo::StaInfoInactiveTime => {
+                        res.inactive_time = Some(attr.get_payload_as()?)
                     }
-                    Nl80211StaInfo::StaInfoBeaconLoss => {
-                        res.beacon_loss = Some(attr.get_payload_as()?)
-                    }
-                    Nl80211StaInfo::StaInfoConnectedTime => {
-                        res.connected_time = Some(attr.get_payload_as()?)
+                    Nl80211StaInfo::StaInfoRxBytes64 => res.rx_bytes = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoRxBytes => {
+                        if res.rx_bytes.is_none() {
+                            res.rx_bytes = Some(attr.get_payload_as::<u32>()? as u64)
+                        }
                     }
                     Nl80211StaInfo::StaInfoRxPackets => {
                         res.rx_packets = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoTxBytes64 => res.tx_bytes = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoTxBytes => {
+                        if res.tx_bytes.is_none() {
+                            res.tx_bytes = Some(attr.get_payload_as::<u32>()? as u64)
+                        }
                     }
                     Nl80211StaInfo::StaInfoTxPackets => {
                         res.tx_packets = Some(attr.get_payload_as()?)
@@ -63,6 +79,32 @@ impl TryFrom<Attrs<'_, Nl80211Attr>> for Station {
                         res.tx_retries = Some(attr.get_payload_as()?)
                     }
                     Nl80211StaInfo::StaInfoTxFailed => res.tx_failed = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoBeaconLoss => {
+                        res.beacon_loss = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoBeaconRx => res.beacon_rx = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoRxDropMisc => {
+                        res.rx_drop_misc = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoSignal => res.signal = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoSignalAvg => {
+                        res.average_signal = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoBeaconSignalAvg => {
+                        res.beacon_signal_avg = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoTOffset => res.t_offset = Some(attr.get_payload_as()?),
+                    Nl80211StaInfo::StaInfoTxBitrate => {
+                        if let Some(rate) = attr
+                            .get_attr_handle::<Nl80211RateInfo>()?
+                            .get_attribute(Nl80211RateInfo::RateInfoBitrate32)
+                        {
+                            res.tx_bitrate = Some(rate.get_payload_as()?);
+                        }
+                    }
+                    Nl80211StaInfo::StaInfoTxDuration => {
+                        res.tx_duration = Some(attr.get_payload_as()?)
+                    }
                     Nl80211StaInfo::StaInfoRxBitrate => {
                         if let Some(rate) = attr
                             .get_attr_handle::<Nl80211RateInfo>()?
@@ -71,13 +113,17 @@ impl TryFrom<Attrs<'_, Nl80211Attr>> for Station {
                             res.rx_bitrate = Some(rate.get_payload_as()?);
                         }
                     }
-                    Nl80211StaInfo::StaInfoTxBitrate => {
-                        if let Some(rate) = attr
-                            .get_attr_handle::<Nl80211RateInfo>()?
-                            .get_attribute(Nl80211RateInfo::RateInfoBitrate32)
-                        {
-                            res.tx_bitrate = Some(rate.get_payload_as()?);
-                        }
+                    Nl80211StaInfo::StaInfoRxDuration => {
+                        res.rx_duration = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoAckSignal => {
+                        res.ack_signal = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoAckSignalAvg => {
+                        res.ack_signal_avg = Some(attr.get_payload_as()?)
+                    }
+                    Nl80211StaInfo::StaInfoConnectedTime => {
+                        res.connected_time = Some(attr.get_payload_as()?)
                     }
                     _ => (),
                 }
@@ -230,6 +276,7 @@ mod tests_station {
             tx_failed: Some(u32::from_le_bytes([47, 0, 0, 0])),
             tx_packets: Some(u32::from_le_bytes([9, 170, 2, 0])),
             tx_retries: Some(u32::from_le_bytes([27, 130, 0, 0])),
+            ..Default::default()
         };
 
         assert_eq!(station, expected_station)
